@@ -39,6 +39,8 @@ services:
         environment:
             PMA_HOST: db
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+            MYSQL_USER: ${MYSQL_USER:-root}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root}
             MYSQL_INIDB_SKIP_TZINFO: "yes"
             UPLOAD_LIMIT: 900000000
 volumes:
