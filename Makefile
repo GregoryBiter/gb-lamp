@@ -1,4 +1,4 @@
-.PHONY: help init setup start ngrok up down logs clean
+.PHONY: help init start clean
 
 help: ## Показать эту справку
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -6,23 +6,8 @@ help: ## Показать эту справку
 init: ## Инициализировать проект с выбором версии PHP (7.4, 8.0, 8.2)
 	./.docker/scripts/init.sh
 
-fix-permissions: ## Настроить права доступа к файлам (www)
-	./.docker/scripts/fixPermissions.sh
-
-start: ## Запустить проект (проверить .env, добавить хост, запустить Docker)
+start: ## Запустить проект (проверить .env, скопировать конфиги, добавить хост, запустить Docker)
 	./.docker/scripts/start.sh
-
-ngrok: ## Запустить ngrok для туннелирования
-	./.docker/scripts/start-ngrok.sh
-
-up: ## Запустить Docker Compose в фоне
-	./.docker/scripts/run.sh
-
-down: ## Остановить Docker Compose
-	docker compose down
-
-logs: ## Показать логи Docker Compose
-	docker compose logs -f
 
 clean: ## Очистить контейнеры и образы
 	docker compose down --volumes --remove-orphans

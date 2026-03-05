@@ -5,6 +5,33 @@ set -e  # Зупинити виконання при помилці
 ENV_FILE=".env"
 HOSTS_FILE="/etc/hosts"
 IP="127.0.0.1"
+SOURCE_DIR=".docker/example-config/opencart-3"
+DEST_DIR="www"
+CONFIG_FILES=("config.php" "admin/config.php" ".htaccess")
+
+# Функция для копирования конфигурационных файлов
+copy_configs() {
+    for file in "${CONFIG_FILES[@]}"; do
+        src="$SOURCE_DIR/$file"
+        dest="$DEST_DIR/$file"
+        if [ -f "$dest" ]; then
+            if cmp -s "$src" "$dest"; then
+                echo "$file уже скопирован и совпадает."
+            else
+                echo "$file существует и отличается."
+                read -p "Перезаписать? (y/n): " -n 1 -r
+                echo
+                if [[ $REPLY =~ ^[Yy]$ ]]; then
+                    cp "$src" "$dest"
+                    echo "✓ Перезаписан $file"
+                fi
+            fi
+        else
+            cp "$src" "$dest"
+            echo "✓ Скопирован $file"
+        fi
+    done
+}
 
 # Перевіряємо, що .env існує
 if [ ! -f "$ENV_FILE" ]; then
@@ -18,6 +45,13 @@ VHOST_SERVER_NAME=$(grep -E '^VHOST_SERVER_NAME=' "$ENV_FILE" | cut -d '=' -f2 |
 if [ -z "$VHOST_SERVER_NAME" ]; then
   echo "Помилка: VHOST_SERVER_NAME не вказано в .env"
   exit 1
+fi
+
+# Спрашиваем о копировании конфигурационных файлов
+read -p "Хотите скопировать файлы конфигурации (config.php, admin/config.php, .htaccess) из примера в папку www? (y/n): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    copy_configs
 fi
 
 # Перевіряємо, чи запис вже є
