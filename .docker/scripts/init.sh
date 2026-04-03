@@ -81,6 +81,14 @@ fi
 docker compose down
 docker compose build
 
+# Импорт базы данных
+echo ""
+read -p "Хотите импортировать SQL-файл из корня в базу данных сейчас? (y/n): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    ./.docker/scripts/db_import.sh
+fi
+
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║   Инициализация завершена успешно!               ║${NC}"
