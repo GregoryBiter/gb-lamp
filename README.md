@@ -1,160 +1,136 @@
 # GB-LAMP
 
-Проект для запуска LAMP стека (Linux, Apache, MySQL, PHP) с использованием Docker Compose. Позволяет быстро развернуть локальную среду разработки с выбором версии PHP.
+[English](README.md) | [Українська](README.ua.md)
 
-## Возможности
+A lightweight, fast LAMP stack (Linux, Apache, MariaDB, PHP) using Docker Compose. Designed for rapid local development with selectable PHP versions directly in the project root directory (optimized for OpenCart, custom websites, and other CMS platforms).
 
-- **Выбор версии PHP**: Поддержка PHP 7.4, 8.0 и 8.2
-- **Автоматическая настройка**: Инициализация проекта с копированием необходимых файлов
-- **Управление базой данных**: Автоматический импорт SQL-дампов с очисткой существующих таблиц
-- **Управление контейнерами**: Запуск, остановка, логи и очистка
-- **Ngrok интеграция**: Туннелирование для внешнего доступа
-- **Гибкая конфигурация**: Настройка через файл `.env`
-- **Автоматический запуск**: Скрипт `run.sh` для быстрого старта без ручной инициализации
+## Features
 
-## Требования
+- **One-Command Setup**: Attach the Docker environment to any existing project via `curl | bash`
+- **Multiple PHP Versions**: Seamless support for PHP 7.4, 8.0, and 8.2
+- **Root-Level Serving**: Web root is mapped directly to the repository root directory
+- **Automated Configuration**: Automatic template provisioning, config copying, and `.env` creation
+- **Database Management**: Automated SQL dump importing with table cleanup
+- **Container Lifecycle**: Simple commands to start, stop, clean up, and fix permissions
+- **Flexible Environment**: Centralized configuration through `.env`
+- **Reboot-Safe**: Containers do not autostart on system reboot (`restart: "no"`)
 
-- Docker и Docker Compose
-- Make (для использования команд из Makefile)
+## Requirements
+
+- Docker and Docker Compose
+- Make (for running Makefile targets)
 - Bash shell
 
-## Установка и запуск
+## Installation & Quick Start
 
-### Подключение к любому существующему проекту (рекомендуется)
+### 1. Attach to Any Existing Project (Recommended)
 
-Перейдите в каталог вашего проекта (например, с OpenCart или другим сайтом) и выполните:
+Navigate to your existing website/OpenCart project folder and run:
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/GregoryBiter/gb-lamp/main/lamp.sh | bash
 ```
 
-Скрипт автоматически:
-- Загрузит необходимые компоненты GB-LAMP (`.docker/`, `Makefile`, `run.sh`, `.env.example`)
-- Предложит выбрать версию PHP (7.4, 8.0, 8.2)
-- Настроит локальный домен и файл `.env`
-- Добавит служебные файлы окружения и кэш OpenCart в `.gitignore`
-- Предложит базовые файлы конфигурации (`config.php`, `admin/config.php`, `.htaccess`), если обнаружен OpenCart
-- Предложит запустить контейнеры сразу
+The script will automatically:
+- Download the required GB-LAMP components (`.docker/`, `Makefile`, `.env.example`, `.vscode/`)
+- Update your project's `.gitignore` with environment and CMS cache/log rules
+- Launch the interactive initialization wizard (`init.sh`) to select the PHP version and configure `.env`
 
-### Локальный запуск в репозитории gb-lamp
+---
 
-Используйте скрипт `run.sh` для автоматической инициализации и запуска:
+### 2. Local Setup in Cloned gb-lamp Repository
 
-```bash
-./run.sh
-```
+If working directly within this repository:
 
-Этот скрипт:
-
-- Проверит и скопирует `docker-compose.yml` (по умолчанию для PHP 7.4)
-- Создаст `.env` файл из `.env.example`, если он отсутствует
-- Запустит `docker compose up -d`
-
-### Ручная инициализация
-
-1. **Инициализация проекта**:
-
-   ```bash
-   make init
-   ```
-
-   Выберите версию PHP (1 - PHP 7.4, 2 - PHP 8.0, 3 - PHP 8.2). Будет создан `docker-compose.yml`, предложено создать `.env` и предложен автоматический импорт SQL-файла из корня проекта.
-
-2. **Работа с базой данных**:
-
-   Вы можете импортировать базу данных в любое время. Скрипт автоматически найдет `.sql` файл в корне и очистит существующие таблицы перед импортом:
-
-   ```bash
-   make db-import
-   ```
-
-3. **Запуск проекта**:
-
+1. **Quick Start**:
    ```bash
    make start
    ```
+   *If `docker-compose.yml` or `.env` are missing, the command automatically triggers the initialization wizard.*
 
-## Конфигурация
+2. **Manual Initialization**:
+   ```bash
+   make init
+   ```
+   Select your desired PHP version (1 - PHP 7.4, 2 - PHP 8.0, 3 - PHP 8.2). This generates `docker-compose.yml`, prompts to create `.env`, and offers to import a database dump.
 
-### Файл .env
+3. **Database Import**:
+   ```bash
+   make db-import
+   ```
+   Automatically locates a `.sql` file in the project root and imports it into MariaDB after cleaning existing tables.
 
-После инициализации отредактируйте файл `.env` для настройки:
+---
 
-- `VHOST_SERVER_NAME`: Доменное имя для виртуального хоста (например, `localhost` или `myproject.local`)
-- Другие переменные окружения для MySQL, PHP и т.д.
+## Configuration
 
-Пример:
+### The .env File
+
+After initialization, customize `.env` for your project needs:
 
 ```bash
 VHOST_SERVER_NAME=myproject.local
 MYSQL_ROOT_PASSWORD=root
 MYSQL_DATABASE=myproject
+MYSQL_USER=dev_user
+MYSQL_PASSWORD=dev_password
 ```
 
-### Выбор версии PHP
+### Adding Domain to Hosts
 
-Если нужно изменить версию PHP после инициализации:
-
-1. Запустите `make init` снова и выберите новую версию
-
-2. Или вручную скопируйте нужный шаблон:
-
-   ```bash
-   cp .docker/templates/php8.0/docker-compose.yml docker-compose.yml
-   ```
-
-### Добавление домена в hosts
-
-Если `VHOST_SERVER_NAME` не `localhost`, добавьте запись в `/etc/hosts`:
+If `VHOST_SERVER_NAME` is anything other than `localhost`, add a mapping in `/etc/hosts`:
 
 ```bash
 127.0.0.1 myproject.local
 ```
 
-Команда `make start` делает это автоматически.
+The `make start` command verifies this entry and offers to add it automatically.
 
-## Доступ к сервисам
+---
 
-После запуска:
+## Service Access
 
-- **Веб-сервер**: [http://localhost](http://localhost) (или ваш `VHOST_SERVER_NAME`)
-- **phpMyAdmin**: [http://localhost:8080](http://localhost:8080) (если настроено в docker-compose.yml)
-- **MySQL**: localhost:3306
+Once containers are running:
 
-## Команды Makefile
+- **Web Server**: [http://localhost](http://localhost) (or your configured `VHOST_SERVER_NAME`)
+- **phpMyAdmin**: [http://localhost:8080](http://localhost:8080)
+- **MariaDB / MySQL**: `localhost:3306`
 
-- `make help`: Показать справку
-- `make init`: Инициализировать проект с выбором PHP и предложением импорта БД
-- `make db-import`: Импортировать SQL-файл из корня с предварительной очисткой таблиц
-- `make start`: Запустить с проверкой .env и добавлением хоста
-- `make clean`: Очистить контейнеры и образы
-- `make fix-permissions`: Настроить права доступа к файлам и папкам проекта
+---
 
-## Структура проекта
+## Makefile Commands
+
+- `make help`: Display help and available commands
+- `make init`: Initialize the environment, select PHP version, and configure `.env`
+- `make start`: Validate configuration, register host domain, and launch Docker Compose
+- `make db-import`: Import SQL dump from root into MariaDB with table cleanup
+- `make clean`: Stop containers, remove volumes, and prune dangling images
+- `make fix-permissions`: Set recursive project permissions for the current user
+
+---
+
+## Project Structure
 
 ```bash
 .
 ├── .docker/
-│   ├── configs/          # Конфигурации сервисов (Apache, MySQL, PHP)
-│   ├── example-config/   # Примеры конфигураций CMS (OpenCart)
-│   ├── scripts/          # Скрипты инициализации и запуска
-│   └── templates/        # Шаблоны docker-compose.yml для разных версий PHP
-├── docker-compose.yml    # Конфигурация Docker Compose (создается при init)
-├── .env                  # Переменные окружения (создается из .env.example)
-├── .env.example          # Пример файла .env
-├── Makefile              # Команды для управления проектом
-├── run.sh                # Скрипт быстрого запуска
-└── lamp.sh               # Скрипт установки LAMP в любой проект
-# Файлы сайта / OpenCart размещаются непосредственно в корне проекта
+│   ├── configs/          # Service configurations (Apache, MySQL, PHP)
+│   ├── example-config/   # CMS configuration templates (OpenCart)
+│   ├── scripts/          # Initialization and management scripts
+│   └── templates/        # docker-compose.yml templates for PHP versions
+├── docker-compose.yml    # Active Docker Compose file (created during init)
+├── .env                  # Environment variables (created from .env.example)
+├── .env.example          # Example environment variable template
+├── Makefile              # Project management commands
+└── lamp.sh               # One-line installer script for any project
+# Website / OpenCart files reside directly in the project root directory
 ```
 
-## Устранение неполадок
+---
 
-- **Ошибка "no configuration file provided"**: Запустите `make init` или используйте `./run.sh`
-- **Проблемы с правами**: Запустите `make fix-permissions`
-- **Контейнеры не запускаются**: Проверьте логи с `make logs`
-- **Не удается подключиться к MySQL**: Проверьте настройки в `.env`
+## Troubleshooting
 
-## Лицензия
-
-[Укажите лицензию, если применимо]
+- **Missing Configuration Files**: Run `make init` or `make start`.
+- **Permission Denied Errors**: Run `make fix-permissions`.
+- **Containers Fail to Start**: Check logs with `docker compose logs` and verify that ports `80`, `3306`, or `8080` are not in use by other processes.
+- **Database Connection Issues**: Verify database credentials in `.env`.

@@ -66,10 +66,15 @@ if [ "$SRC_DIR" != "$PROJECT_DIR" ]; then
     cp -r "$SRC_DIR/.docker" "$PROJECT_DIR/"
 fi
 
-# Копируем run.sh
+# Копируем run.sh если есть
 if [ "$SRC_DIR" != "$PROJECT_DIR" ] || [ ! -f "run.sh" ]; then
-    cp "$SRC_DIR/run.sh" "$PROJECT_DIR/run.sh"
-    chmod +x "$PROJECT_DIR/run.sh"
+    if [ -f "$SRC_DIR/run.sh" ]; then
+        cp "$SRC_DIR/run.sh" "$PROJECT_DIR/run.sh"
+        chmod +x "$PROJECT_DIR/run.sh" 2>/dev/null || true
+    elif [ -f "$SRC_DIR/.docker/scripts/run.sh" ]; then
+        cp "$SRC_DIR/.docker/scripts/run.sh" "$PROJECT_DIR/run.sh"
+        chmod +x "$PROJECT_DIR/run.sh" 2>/dev/null || true
+    fi
 fi
 
 # Копируем .env.example

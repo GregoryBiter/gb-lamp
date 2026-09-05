@@ -29,7 +29,11 @@ SQL_FILE=$(ls *.sql 2>/dev/null | head -n 1)
 
 if [ -z "$SQL_FILE" ]; then
     echo -e "${YELLOW}Предупреждение: SQL файл не найден в корне проекта.${NC}"
-    read -p "Введите путь к .sql файлу вручную: " SQL_FILE
+    read -p "Введите путь к .sql файлу вручную (или Enter для отмены): " -r SQL_FILE
+    if [ -z "$SQL_FILE" ]; then
+        echo -e "${YELLOW}Импорт базы данных отменен.${NC}"
+        exit 0
+    fi
     if [ ! -f "$SQL_FILE" ]; then
         echo -e "${RED}Ошибка: Файл $SQL_FILE не найден.${NC}"
         exit 1

@@ -82,15 +82,19 @@ if [ ! -f ".env" ]; then
     fi
 fi
 
-docker compose down
-docker compose build
+if [ -f ".env" ]; then
+    docker compose down 2>/dev/null || true
+    docker compose build
 
-# Импорт базы данных
-echo ""
-read -p "Хотите импортировать SQL-файл из корня в базу данных сейчас? (y/N) [N]: " -r
-REPLY=${REPLY:-n}
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    ./.docker/scripts/db_import.sh
+    # Импорт базы данных
+    echo ""
+    read -p "Хотите импортировать SQL-файл из корня в базу данных сейчас? (y/N) [N]: " -r
+    REPLY=${REPLY:-n}
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        ./.docker/scripts/db_import.sh
+    fi
+else
+    echo -e "${YELLOW}⚠ Пропуск сборки и импорта БД, так как файл .env отсутствует.${NC}"
 fi
 
 echo ""
