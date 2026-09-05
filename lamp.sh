@@ -17,6 +17,15 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 REPO_TAR_URL="https://github.com/GregoryBiter/gb-lamp/archive/refs/heads/main.tar.gz"
+TARGET_DIR="${1:-.}"
+
+if [ "$TARGET_DIR" != "." ]; then
+    if [ ! -d "$TARGET_DIR" ]; then
+        mkdir -p "$TARGET_DIR"
+    fi
+    cd "$TARGET_DIR"
+fi
+
 PROJECT_DIR="$(pwd)"
 
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
