@@ -6,7 +6,7 @@ ENV_FILE=".env"
 HOSTS_FILE="/etc/hosts"
 IP="127.0.0.1"
 SOURCE_DIR=".docker/example-config/opencart-3"
-DEST_DIR="www"
+DEST_DIR="."
 CONFIG_FILES=("config.php" "admin/config.php" ".htaccess")
 
 # Функция для копирования конфигурационных файлов
@@ -14,6 +14,10 @@ copy_configs() {
     for file in "${CONFIG_FILES[@]}"; do
         src="$SOURCE_DIR/$file"
         dest="$DEST_DIR/$file"
+        dest_dir=$(dirname "$dest")
+        if [ ! -d "$dest_dir" ]; then
+            mkdir -p "$dest_dir"
+        fi
         if [ -f "$dest" ]; then
             if cmp -s "$src" "$dest"; then
                 echo "$file уже скопирован и совпадает."
@@ -48,7 +52,7 @@ if [ -z "$VHOST_SERVER_NAME" ]; then
 fi
 
 # Спрашиваем о копировании конфигурационных файлов
-read -p "Хотите скопировать файлы конфигурации (config.php, admin/config.php, .htaccess) из примера в папку www? (y/n): " -n 1 -r
+read -p "Хотите скопировать файлы конфигурации (config.php, admin/config.php, .htaccess) из примера в корень проекта? (y/n): " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     copy_configs

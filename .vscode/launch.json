@@ -21,7 +21,7 @@
             "request": "launch",
             "port": 9003,
             "pathMappings": {
-                "/var/www/html": "${workspaceRoot}/www"
+                "/var/www/html": "${workspaceRoot}"
               },
             "log": true,
             // "hostname": "localhost",

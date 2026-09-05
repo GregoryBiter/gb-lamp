@@ -1,4 +1,4 @@
-.PHONY: help init start clean db-import
+.PHONY: help init start clean db-import fix-permissions
 
 help: ## Показать эту справку
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -15,3 +15,6 @@ db-import: ## Импортировать SQL-файл из корня в баз�
 clean: ## Очистить контейнеры и образы
 	docker compose down --volumes --remove-orphans
 	docker system prune -f
+
+fix-permissions: ## Настроить права доступа к файлам и папкам проекта
+	./.docker/scripts/fixPermissions.sh

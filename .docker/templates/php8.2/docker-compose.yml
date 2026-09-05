@@ -7,7 +7,7 @@ services:
         ports:
             - "${SERVER_PORT:-80}:80"
         volumes:
-            - ./www/:/var/www/html
+            - ./:/var/www/html
             - ./.docker/configs/php/php8.2/php.ini:/usr/local/etc/php/php.ini
             - ./.docker/configs/apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
             - ./.docker/configs/php/php8.2/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
