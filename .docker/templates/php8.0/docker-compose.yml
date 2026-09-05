@@ -1,5 +1,6 @@
 services:
     php-apache:
+        restart: "no"
         build: 
             context: .
             dockerfile: ./.docker/templates/php8.0/Dockerfile
@@ -21,6 +22,7 @@ services:
         env_file:
             - ./.env
     db:
+        restart: "no"
         image: mariadb:10.5
         ports:
             - "${MYSQL_PORT:-3306}:3306"
@@ -33,6 +35,7 @@ services:
             - mysql_data:/var/lib/mysql
             - ./.docker/configs/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
     phpmyadmin:
+        restart: "no"
         image: phpmyadmin/phpmyadmin
         ports:
             - "8080:80"

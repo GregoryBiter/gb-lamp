@@ -1,6 +1,5 @@
 /.docker/logs/apache2/*
 /.docker/logs/php/*
 docker-compose.yml
-.tmpDocker/
 .env
 *.sql

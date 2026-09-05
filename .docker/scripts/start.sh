@@ -23,8 +23,8 @@ copy_configs() {
                 echo "$file уже скопирован и совпадает."
             else
                 echo "$file существует и отличается."
-                read -p "Перезаписать? (y/n): " -n 1 -r
-                echo
+                read -p "Перезаписать? (y/N) [N]: " -r
+                REPLY=${REPLY:-n}
                 if [[ $REPLY =~ ^[Yy]$ ]]; then
                     cp "$src" "$dest"
                     echo "✓ Перезаписан $file"
@@ -37,10 +37,21 @@ copy_configs() {
     done
 }
 
-# Перевіряємо, що .env існує
-if [ ! -f "$ENV_FILE" ]; then
-  echo "Помилка: файл $ENV_FILE не знайдено."
-  exit 1
+# Перевіряємо наявність docker-compose.yml та .env (якщо немає - запускаємо init.sh)
+if [ ! -f "docker-compose.yml" ] || [ ! -f "$ENV_FILE" ]; then
+    echo "⚠️  Файл docker-compose.yml або $ENV_FILE не знайдено."
+    echo "🚀 Запуск автоматичної ініціалізації проекту (init.sh)..."
+    echo ""
+    ./.docker/scripts/init.sh
+    echo ""
+    if [ ! -f "$ENV_FILE" ]; then
+        echo "Помилка: файл $ENV_FILE не знайдено після ініціалізації."
+        exit 1
+    fi
+    if [ ! -f "docker-compose.yml" ]; then
+        echo "Помилка: файл docker-compose.yml не знайдено після ініціалізації."
+        exit 1
+    fi
 fi
 
 # Отримуємо VHOST_SERVER_NAME з .env
@@ -52,8 +63,8 @@ if [ -z "$VHOST_SERVER_NAME" ]; then
 fi
 
 # Спрашиваем о копировании конфигурационных файлов
-read -p "Хотите скопировать файлы конфигурации (config.php, admin/config.php, .htaccess) из примера в корень проекта? (y/n): " -n 1 -r
-echo
+read -p "Хотите скопировать файлы конфигурации (config.php, admin/config.php, .htaccess) из примера в корень проекта? (y/N) [N]: " -r
+REPLY=${REPLY:-n}
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     copy_configs
 fi
