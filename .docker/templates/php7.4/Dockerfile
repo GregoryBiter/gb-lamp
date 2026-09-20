@@ -1,7 +1,10 @@
 FROM php:7.4-apache
 
 # Установка необходимых зависимостей и PHP расширений
-RUN apt-get update && apt-get install -y \
+RUN echo "deb http://archive.debian.org/debian bullseye main" > /etc/apt/sources.list \
+    && echo "deb http://archive.debian.org/debian bullseye-updates main" >> /etc/apt/sources.list \
+    && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid \
+    && apt-get update && apt-get install -y \
     curl \
     wget \
     git \
@@ -16,9 +19,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install -j$(nproc) iconv mbstring mysqli pdo_mysql \
     && pecl channel-update pecl.php.net \
     && pecl install xdebug-2.9.8 \
-    && docker-php-ext-enable xdebug
+    && docker-php-ext-enable xdebug \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN curl -o /tmp/ioncube_loaders.tar.gz https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz \
+RUN curl -fsSL --retry 5 --retry-delay 2 -C - -o /tmp/ioncube_loaders.tar.gz https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz \
     && tar -xzf /tmp/ioncube_loaders.tar.gz -C /tmp \
     && mv /tmp/ioncube/ioncube_loader_lin_7.4.so /usr/local/lib/php/extensions/no-debug-non-zts-20190902/ \
     && echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20190902/ioncube_loader_lin_7.4.so" > /usr/local/etc/php/conf.d/00-ioncube.ini \
