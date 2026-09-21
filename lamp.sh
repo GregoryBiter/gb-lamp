@@ -44,10 +44,23 @@ cleanup() {
 trap cleanup EXIT
 
 # Источник файлов GB-LAMP: переменная GB_LAMP_SRC, текущая папка или GitHub
-if [ -n "${GB_LAMP_SRC:-}" ] && [ -d "$GB_LAMP_SRC/.docker" ]; then
+# Проверяем не только наличие каталогов, но и ключевых файлов. В проекте
+# может остаться неполная старая папка .docker, которую нельзя принимать за
+# полноценный локальный источник GB-LAMP.
+is_gb_lamp_source() {
+    local source_dir="$1"
+
+    [ -f "$source_dir/.env.example" ] \
+        && [ -f "$source_dir/.docker/scripts/init.sh" ] \
+        && [ -f "$source_dir/.docker/templates/php7.4/docker-compose.yml" ] \
+        && [ -f "$source_dir/.docker/templates/php8.0/docker-compose.yml" ] \
+        && [ -f "$source_dir/.docker/templates/php8.2/docker-compose.yml" ]
+}
+
+if [ -n "${GB_LAMP_SRC:-}" ] && is_gb_lamp_source "$GB_LAMP_SRC"; then
     echo -e "${GREEN}✓ Использование файлов GB-LAMP из $GB_LAMP_SRC${NC}"
     SRC_DIR="$GB_LAMP_SRC"
-elif [ -d ".docker/templates" ] && [ -f ".env.example" ]; then
+elif is_gb_lamp_source "$PROJECT_DIR"; then
     echo -e "${GREEN}✓ Использование локальных файлов GB-LAMP${NC}"
     SRC_DIR="$PROJECT_DIR"
 else
