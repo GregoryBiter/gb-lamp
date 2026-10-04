@@ -18,3 +18,9 @@ clean: ## Очистить контейнеры и образы
 
 fix-permissions: ## Настроить права доступа к файлам и папкам проекта
 	./.docker/scripts/fixPermissions.sh
+
+up: ## Поднять контейнеры
+	docker compose up -d
+
+down:
+	docker compose down
